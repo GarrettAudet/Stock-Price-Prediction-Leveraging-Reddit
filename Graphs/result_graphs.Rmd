@@ -1,0 +1,309 @@
+---
+title: "Results - Graphs"
+output: html_notebook
+---
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(data.table)
+library(readxl)
+library(plotly)
+library(numform)
+```
+
+```{r}
+# Specify sheet by its name
+df <- read_excel("results.xlsx", sheet = "RMSE Graph", na="NA")
+
+df
+```
+
+```{r}
+# Filter and select best columns
+lgbm <- select(filter(df, Model == "LGBM"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_19", "sw_1_Trust"))
+rf <- select(filter(df, Model == "RF"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_18", "sw_9_Trust"))
+nn <- select(filter(df, Model == "NN"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_13", "sw_12_Trust"))
+lstm <- select(filter(df, Model == "LSTM"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_8", "sw_11_Trust"))
+```
+
+```{r}
+# Rename columns
+names(lgbm) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+names(rf) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+names(nn) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+names(lstm) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+```
+
+```{r}
+# Bind them into one
+df <- rbindlist(list(lgbm, rf, nn, lstm))
+
+# Round to 2 decimal places
+df <- df %>% mutate_at(vars(-Model, -Day), funs(round2(., 2)))
+
+df
+```
+```{r}
+# Plot results
+fig <- filter(df, Model == "LGBM") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "RMSE for Select Cases, LGBM",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "RMSE"))
+
+fig
+```
+
+```{r}
+# Plot results
+fig <- filter(df, Model == "RF") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "RMSE for Select Cases, RF",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "RMSE"))
+
+fig
+```
+
+```{r}
+# Plot results
+fig <- filter(df, Model == "NN") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "RMSE for Select Cases, NN",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "RMSE"))
+
+fig
+```
+
+```{r}
+# Plot results
+fig <- filter(df, Model == "LSTM") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "RMSE for Select Cases, LSTM",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "RMSE"))
+
+fig
+```
+
+```{r}
+# Specify sheet by its name
+df <- read_excel("results.xlsx", sheet = "MAE Graph", na="NA")
+
+df
+```
+
+```{r}
+# Filter and select best columns
+lgbm <- select(filter(df, Model == "LGBM"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_18", "sw_18_Trust"))
+rf <- select(filter(df, Model == "RF"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_18", "sw_9_Trust"))
+nn <- select(filter(df, Model == "NN"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_7", "sw_12_Trust"))
+lstm <- select(filter(df, Model == "LSTM"), 
+               c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "sw_9", "sw_19_Trust"))
+```
+
+```{r}
+# Rename columns
+names(lgbm) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+names(rf) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+names(nn) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+names(lstm) <- c("Model", "Day", "Fin", "Reddit", "Red_Fin", "Red_Fin_Trust", "Best_sw", "Best_sw_Trust")
+```
+
+```{r}
+# Bind them into one
+df <- rbindlist(list(lgbm, rf, nn, lstm))
+
+# Round to 2 decimal places
+df <- df %>% mutate_at(vars(-Model, -Day), funs(round2(., 2)))
+
+df
+```
+```{r}
+# Plot results
+fig <- filter(df, Model == "LGBM") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "MAE for Select Cases, LGBM",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "MAE"))
+
+fig
+```
+
+```{r}
+# Plot results
+fig <- filter(df, Model == "RF") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "MAE for Select Cases, RF",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "MAE"))
+
+fig
+```
+
+```{r}
+# Plot results
+fig <- filter(df, Model == "NN") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "MAE for Select Cases, NN",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "MAE"))
+
+fig
+```
+
+```{r}
+# Plot results
+fig <- filter(df, Model == "LSTM") %>% plot_ly(width = 2000, height = 500)
+fig <- fig %>% add_trace(x = ~Day, y = ~Fin, type = 'bar', 
+               text = ~Fin, textposition = 'auto', name = 'Financial only')
+
+#fig <- fig %>% add_trace(y = ~Reddit, name = 'Reddit only')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin, name = 'Reddit and Financial',
+                         type = 'bar', text = ~Red_Fin, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw, name = 'Best Sliding Window',
+                         type = 'bar', text = ~Best_sw, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Red_Fin_Trust, name = 'Reddit and Financial, trust filtered',
+                         type = 'bar', text = ~Red_Fin_Trust, textposition = 'auto')
+
+fig <- fig %>% add_trace(x = ~Day, y = ~Best_sw_Trust, name = 'Best Sliding Window, trust filtered', 
+                         type = 'bar', text = ~Best_sw_Trust, textposition = 'auto')
+
+fig <- fig %>% layout(title = "MAE for Select Cases, LSTM",
+         barmode = 'group',
+         xaxis = list(title = "adjClose_Day_Y", nticks=20),
+         yaxis = list(title = "MAE"))
+
+fig
+```
+
